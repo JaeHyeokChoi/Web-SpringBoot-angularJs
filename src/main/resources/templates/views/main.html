@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>도미월드</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+</head>
+<script> 
+
+// module
+var app = angular.module("myApp", []); 
+
+// config
+app.config(['$qProvider', function ($qProvider) {
+
+    $qProvider.errorOnUnhandledRejections(false);
+
+}]);
+
+// service
+app.service("myService", function(){
+	this.add = function (a1, a2) {
+		return a1 + a2;
+	};
+	
+	this.subtract = function (a1, a2) {
+		return a1 - a2;
+	};
+});
+
+// factory
+app.factory('random', function(){
+	var randomObject = {};
+	var num = Math.floor(Math.random()*10);
+	randomObject.generate = function () {
+		return num;
+	};
+	return randomObject;
+});
+
+// controller
+app.controller("myCtrl", ['$scope','$http', '$interval', '$location', '$timeout', 'myService','random',
+	function($scope,$http, $interval, $location, $timeout, myService, random) { 
+	$scope.hello = "Hello World"; 
+	
+	// sessionStorage 사용
+	sessionStorage.setItem("contextpath","localhost:8080");
+	var contextpath = sessionStorage.getItem("contextpath","localhost:8080");
+	
+	// $interval 사용 - 현재 날짜, 시간뿌리기
+	$interval(function(){
+		var date = new Date(); 
+		var today = ""; // 오늘 날짜
+		var seconds = ""; // 시간(초)
+		var month = ""; // 월
+		
+		month = date.getMonth() +1;
+		if(month < 10){
+			month = "0" + month; 
+		}
+		seconds = date.getSeconds();
+		if(seconds < 10){
+			seconds = "0" + seconds; 
+		}
+		
+		today = date.getFullYear() + "-" + month + "-" + date.getDate()
+		+ " " + date.getHours() + ":" + date.getMinutes() + ":" + seconds;
+		
+		$scope.result1 = today;
+	},1000);
+	
+	$scope.data1 = 0;
+	$scope.data2 = 0;
+	$scope.data3 = $location.absUrl();
+	
+	// click function
+	$scope.fnDataChange = function (){
+		$scope.data1 = $("#data1").val();
+		$scope.data2 = $("#data2").val();
+		
+		$scope.result2 = myService.add($scope.data1,$scope.data2);
+		$scope.result3 = myService.subtract($scope.data1,$scope.data2);
+	}
+	
+	$scope.getAjax = function() {
+		var http = $http.get(contextpath + "/main/list.do");
+		http.then(function success(response){
+			console.log(response);
+		});
+	}
+
+	$scope.generateRandom = function () {
+		$scope.randomNumber = random.generate();
+		$scope.randomNumber2 = random.generate();
+	};
+	
+}]);
+
+</script>
+<body>
+
+	<!-- h2 / jpa / thymeleaf -->
+	<table class="tb_col">
+		<tr>
+			<th>id</th> 
+			<th>email</th>
+			<th>name</th>
+		</tr>
+		<tr th:each="user : ${userList}">
+			<td th:text="${user.id}"></td>
+			<td th:text="${user.password}"></td>
+			<td th:text="${user.email}"></td>
+			<td th:text="${user.name}"></td>
+		</tr>
+	</table>
+	<!-- h2 / jpa / angular -->
+	<div ng-app="myApp" ng-controller="myCtrl"> 
+		<h1>{{hello}}</h1> 
+		<div>현재 시간 : {{result1}}</div>
+		<hr/>
+		<input type="text" id="data1"/>
+		<input type="text" id="data2"/>
+		<button type="button" ng-click="fnDataChange();">클릭</button>
+		<button type="button" ng-click="getAjax();">Ajax</button>
+		<button type="button" ng-click="generateRandom();">랜덤</button>
+		<br/>
+		숫자1 : {{data1}}<br/>
+		숫자2 : {{data2}}<br/>
+		URL : {{data3}}<br/>
+		<div>더한 값 : {{result2}}</div>
+		<div>뺀 값 : {{result3}}</div>
+		<div>랜덤 값 : {{randomNumber}}</div>
+		<div>랜덤 값2 : {{randomNumber2}}</div>
+	</div>
+	
+</body>
+</html>
