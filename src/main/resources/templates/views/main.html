@@ -23,11 +23,11 @@ app.config(['$qProvider', function ($qProvider) {
 // service
 app.service("myService", function(){
 	this.add = function (a1, a2) {
-		return a1 + a2;
+		return Number(a1) + Number(a2);
 	};
 	
 	this.subtract = function (a1, a2) {
-		return a1 - a2;
+		return Number(a1) - Number(a2);
 	};
 });
 
@@ -36,7 +36,7 @@ app.factory('random', function(){
 	var randomObject = {};
 	var num = Math.floor(Math.random()*10);
 	randomObject.generate = function () {
-		return num;
+		return Number(num);
 	};
 	return randomObject;
 });
