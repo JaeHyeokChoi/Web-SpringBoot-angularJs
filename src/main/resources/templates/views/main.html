@@ -22,13 +22,21 @@ app.config(['$qProvider', function ($qProvider) {
 
 // service
 app.service("myService", function(){
-	this.add = function (a1, a2) {
+	var myService = this;
+	myService.add = function (a1, a2) {
 		return Number(a1) + Number(a2);
 	};
 	
-	this.subtract = function (a1, a2) {
+	myService.subtract = function (a1, a2) {
 		return Number(a1) - Number(a2);
 	};
+	
+	myService.zeroSubString = function (num){
+		if(num < 10){
+			num = "0" + num; 
+		}
+		return num;
+	}
 });
 
 // factory
@@ -53,23 +61,23 @@ app.controller("myCtrl", ['$scope','$http', '$interval', '$location', '$timeout'
 	// $interval 사용 - 현재 날짜, 시간뿌리기
 	$interval(function(){
 		var date = new Date(); 
-		var today = ""; // 오늘 날짜
-		var seconds = ""; // 시간(초)
-		var month = ""; // 월
+		var _today = ""; // 오늘 날짜
+		var _month = ""; // 월
+		var _day = ""; // 일
+		var _hours = ""; // 시간
+		var _minutes = ""; // 분
+		var _seconds = ""; // 초
 		
-		month = date.getMonth() +1;
-		if(month < 10){
-			month = "0" + month; 
-		}
-		seconds = date.getSeconds();
-		if(seconds < 10){
-			seconds = "0" + seconds; 
-		}
+		_month = myService.zeroSubString(date.getMonth()+1);
+		_day = myService.zeroSubString(date.getDate());
+		_hours = myService.zeroSubString(date.getHours());
+		_minutes = myService.zeroSubString(date.getMinutes()); 
+		_seconds = myService.zeroSubString(date.getSeconds());
 		
-		today = date.getFullYear() + "-" + month + "-" + date.getDate()
-		+ " " + date.getHours() + ":" + date.getMinutes() + ":" + seconds;
+		_today = date.getFullYear() + "-" + _month + "-" + _day
+		+ " " + _hours + ":" + _minutes + ":" + _seconds;
 		
-		$scope.result1 = today;
+		$scope.result1 = _today;
 	},1000);
 	
 	$scope.data1 = 0;
@@ -94,10 +102,10 @@ app.controller("myCtrl", ['$scope','$http', '$interval', '$location', '$timeout'
 
 	$scope.generateRandom = function () {
 		$scope.randomNumber = random.generate();
-		$scope.randomNumber2 = random.generate();
 	};
 	
 }]);
+
 
 </script>
 <body>
@@ -134,7 +142,6 @@ app.controller("myCtrl", ['$scope','$http', '$interval', '$location', '$timeout'
 		<div>더한 값 : {{result2}}</div>
 		<div>뺀 값 : {{result3}}</div>
 		<div>랜덤 값 : {{randomNumber}}</div>
-		<div>랜덤 값2 : {{randomNumber2}}</div>
 	</div>
 	
 </body>
